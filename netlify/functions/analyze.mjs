@@ -78,8 +78,8 @@ export default async (req) => {
       body: JSON.stringify({
         // Sonnet = איכות ניתוח גבוהה (מומלץ למודל הזה כי הכללים מורכבים).
         // להחלפה למהיר וזול יותר: "claude-haiku-4-5-20251001"
-        model: "claude-sonnet-4-6",
-        max_tokens: 3000,
+       model: "claude-haiku-4-5-20251001",
+        max_tokens: 2000,
         system: SYSTEM,
         messages: [{ role: "user", content }]
       })
