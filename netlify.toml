@@ -4,3 +4,7 @@
 
 [functions."analyze"]
   timeout = 26
+
+[[edge_functions]]
+  function = "analyze"
+  path = "/api/analyze"
