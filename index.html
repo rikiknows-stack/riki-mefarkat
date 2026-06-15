@@ -341,7 +341,7 @@ $('#go').onclick = async ()=>{
   try{
     let res;
     try{
-      res = await fetch("/.netlify/functions/analyze",{
+      res = await fetch("/api/analyze",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({ content })
