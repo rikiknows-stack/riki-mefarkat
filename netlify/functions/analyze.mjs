@@ -80,11 +80,10 @@ export default async (req) => {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        // Haiku = מהירה - חיוני בגלל מגבלת 10 שניות של Netlify Functions בתוכנית החינמית.
-        // הכללים מנוסחים בצורה מפורשת/מכנית, אז Haiku אמורה לעמוד בהם טוב.
-        // להחלפה לאיכות גבוהה יותר (איטי, ייתכן timeout): "claude-sonnet-4-6"
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
+        // Sonnet = איכות עברית ועקביות גבוהה משמעותית מ-Haiku.
+        // אפשרי כי Netlify Pro מאפשר timeout של 26 שניות (מוגדר ב-netlify.toml).
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
         system: SYSTEM,
         messages: [{ role: "user", content }]
       })
