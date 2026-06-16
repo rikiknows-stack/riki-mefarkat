@@ -387,19 +387,33 @@ function showErr(m){ const e=$('#err'); e.textContent=m; e.style.display='block'
 
 // rotating loading captions in Riki's voice
 const LOADING_LINES=[
-  "רגע, ריקי קוראת...",
-  "ריקי מביאה משקפיים 👓",
-  "וואו ואו, איזו רשימה",
-  "לא תאמינו מה ריקי חושבת"
+  "35 שניות ויש לך את התשובה ⏱️",
+  "ריקי הולכת להביא משקפיים 👓",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "עוד כמה שניות, לא להעלם 🐆",
+  "ריקי תגיד לך אם זו מציאה או נפילה",
+  "עוד 20 שניות ⏱️",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "עוד כמה שניות, לא להעלם 🐆",
+  "ריקי תגיד לך אם זו מציאה או נפילה",
+  "עוד 10 שניות ⏱️",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "את מוכנה? 🐆"
 ];
 let loadTimer=null, loadIdx=0;
 function startLoadingRotation(){
   loadIdx=0;
   $('#loadingText').textContent=LOADING_LINES[0];
   loadTimer=setInterval(()=>{
-    loadIdx=(loadIdx+1)%LOADING_LINES.length;
+    if(loadIdx < LOADING_LINES.length - 1) loadIdx++;
     $('#loadingText').textContent=LOADING_LINES[loadIdx];
-  },1800);
+  },1900);
 }
 function stopLoadingRotation(){ if(loadTimer){clearInterval(loadTimer);loadTimer=null;} }
 
