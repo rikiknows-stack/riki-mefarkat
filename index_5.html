@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ריקי מפרקת מרכיבים 🐆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF5EF;
+    --peach:#FBDFCF;
+    --peach-soft:#FDEDE3;
+    --coral:#F5938B;
+    --rose:#E85D7C;
+    --leopard:#9A6A3F;
+    --ink:#3E2A22;
+    --ink-soft:#6B5147;
+    --gold:#E8A23D;
+    --great:#5FA86E;
+    --good:#84B97F;
+    --mixed:#E29B36;
+    --careful:#D86B6B;
+    --card:#FFFFFF;
+    --shadow:0 8px 30px rgba(154,106,63,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Assistant',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.55;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* subtle leopard texture behind everything */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+    background-image:
+      radial-gradient(circle at 12% 18%, var(--leopard) 0 9px, transparent 10px),
+      radial-gradient(circle at 30% 40%, var(--leopard) 0 7px, transparent 8px),
+      radial-gradient(circle at 70% 22%, var(--leopard) 0 11px, transparent 12px),
+      radial-gradient(circle at 86% 55%, var(--leopard) 0 8px, transparent 9px),
+      radial-gradient(circle at 22% 78%, var(--leopard) 0 10px, transparent 11px),
+      radial-gradient(circle at 60% 85%, var(--leopard) 0 7px, transparent 8px),
+      radial-gradient(circle at 48% 60%, var(--leopard) 0 6px, transparent 7px);
+    background-size:340px 340px;
+  }
+  .wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:24px 18px 64px}
+
+  /* header */
+  header{text-align:center;padding:18px 0 8px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--peach-soft);border:2px solid var(--peach);
+    padding:6px 16px;border-radius:999px;font-weight:600;color:var(--leopard);
+    font-size:.82rem;letter-spacing:.02em;margin-bottom:14px;
+  }
+  h1{
+    font-family:'Secular One',sans-serif;font-weight:400;
+    font-size:2.35rem;line-height:1.15;color:var(--ink);
+  }
+  h1 .spot{color:var(--rose)}
+  .sub{color:var(--ink-soft);font-size:1.02rem;margin-top:8px;max-width:420px;margin-inline:auto}
+
+  /* input card */
+  .panel{
+    background:var(--card);border-radius:22px;box-shadow:var(--shadow);
+    padding:18px;margin-top:24px;border:1px solid #F3E2D8;
+  }
+  .tabs{display:flex;gap:8px;background:var(--peach-soft);padding:5px;border-radius:14px;margin-bottom:16px}
+  .tab{
+    flex:1;border:none;background:transparent;cursor:pointer;
+    padding:10px;border-radius:10px;font-family:'Assistant';font-weight:700;
+    font-size:.95rem;color:var(--ink-soft);transition:.2s;
+  }
+  .tab.active{background:var(--card);color:var(--rose);box-shadow:0 2px 8px rgba(154,106,63,.1)}
+
+  .drop{
+    display:flex;flex-direction:column;align-items:center;
+    border:2px dashed var(--coral);border-radius:16px;background:var(--peach-soft);
+    padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;
+  }
+  .drop:hover{background:#FBE6DA;border-color:var(--rose)}
+  .drop .emoji{font-size:2.2rem}
+  .drop p{margin-top:8px;font-weight:600;color:var(--ink)}
+  .drop small{color:var(--ink-soft)}
+  #preview{max-width:100%;border-radius:12px;display:block;margin:0 auto;box-shadow:var(--shadow)}
+  .preview-wrap{margin-top:14px;text-align:center}
+  .change-photo{
+    display:inline-block;margin-top:10px;background:var(--peach-soft);border:1.5px solid var(--coral);
+    color:var(--rose);font-family:'Assistant';font-weight:700;padding:8px 14px;border-radius:11px;
+    cursor:pointer;font-size:.88rem;
+  }
+
+  textarea{
+    width:100%;min-height:140px;border:2px solid var(--peach);border-radius:14px;
+    padding:14px;font-family:'Assistant';font-size:1rem;color:var(--ink);resize:vertical;
+    background:var(--peach-soft);
+  }
+  textarea:focus{outline:none;border-color:var(--coral);background:#fff}
+  textarea::placeholder{color:#C9A893}
+
+  .hidden{display:none}
+
+  .go{
+    width:100%;margin-top:16px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--coral),var(--rose));color:#fff;
+    font-family:'Secular One';font-size:1.15rem;padding:15px;border-radius:16px;
+    box-shadow:0 8px 20px rgba(232,93,124,.35);transition:.15s;
+  }
+  .go:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(232,93,124,.42)}
+  .go:active{transform:translateY(0)}
+  .go:disabled{opacity:.55;cursor:default;transform:none}
+
+  /* loading */
+  .loading{text-align:center;padding:30px 10px;display:none}
+  .loading.show{display:block}
+  .paw{font-size:2.6rem;display:inline-block;animation:bob 1s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg)}}
+  .loading p{margin-top:10px;font-weight:700;color:var(--leopard)}
+
+  /* results */
+  .results{margin-top:24px;display:none}
+  .verdict{
+    border-radius:20px;padding:20px;color:#fff;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .verdict::after{
+    content:"🐆";position:absolute;left:-6px;bottom:-14px;font-size:5rem;opacity:.18;
+  }
+  .verdict .v-label{font-size:.85rem;font-weight:700;opacity:.9;letter-spacing:.04em}
+  .verdict h2{font-family:'Secular One';font-weight:400;font-size:1.5rem;margin-top:4px;line-height:1.25}
+  .v-great{background:linear-gradient(135deg,#6FB07A,#4E9460)}
+  .v-good{background:linear-gradient(135deg,#84B97F,#5FA86E)}
+  .v-mixed{background:linear-gradient(135deg,#EBB04F,#D88B2C)}
+  .v-careful{background:linear-gradient(135deg,#E08585,#C95757)}
+
+  .section-title{
+    font-family:'Secular One';font-size:1.1rem;color:var(--ink);
+    margin:24px 4px 12px;display:flex;align-items:center;gap:8px;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:flex;align-items:center;gap:6px;background:var(--card);
+    border:1.5px solid #F0DDD2;border-radius:12px;padding:8px 12px;font-weight:600;font-size:.9rem;
+  }
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  .dot.good{background:var(--great)}.dot.ok{background:var(--mixed)}.dot.avoid{background:var(--careful)}
+  .chip small{color:var(--ink-soft);font-weight:400}
+
+  .ing{
+    background:var(--card);border-radius:16px;padding:15px 16px;margin-bottom:11px;
+    box-shadow:0 3px 12px rgba(154,106,63,.08);border-inline-start:5px solid var(--good);
+  }
+  .ing.r-star{border-color:var(--great)}
+  .ing.r-good{border-color:var(--good)}
+  .ing.r-neutral{border-color:var(--gold)}
+  .ing.r-watch{border-color:var(--careful)}
+  .ing-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .ing-name{font-weight:700;font-size:1.05rem;color:var(--ink)}
+  .ing-name .he{color:var(--ink-soft);font-weight:600;font-size:.92rem}
+  .ing-tag{font-size:1.2rem}
+  .ing-what{margin-top:5px;color:var(--ink-soft);font-size:.96rem}
+  .ing-meta{margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+  .ing-meta span{display:flex;gap:6px}
+  .ing-meta .k{font-weight:700;white-space:nowrap}
+  .ing-meta .good-line .k{color:var(--great)}
+  .ing-meta .warn-line .k{color:var(--careful)}
+
+  .tip{
+    background:var(--peach-soft);border:2px dashed var(--coral);border-radius:16px;
+    padding:16px;margin-top:22px;font-size:1rem;
+  }
+  .tip b{color:var(--rose);font-family:'Secular One';font-weight:400}
+
+  .err{
+    background:#FCE8E8;border:1.5px solid var(--careful);color:#9A3B3B;
+    border-radius:14px;padding:14px;margin-top:16px;display:none;font-weight:600;
+  }
+  .rec{
+    margin-top:18px;border-radius:18px;padding:18px 18px 20px;
+    background:linear-gradient(135deg,#FFE9DD,#FBD9C7);
+    border:2px solid var(--coral);box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .rec::after{content:"🐆";position:absolute;left:-8px;bottom:-16px;font-size:4.4rem;opacity:.16}
+  .rec-label{font-weight:700;color:var(--rose);font-size:.85rem;letter-spacing:.02em}
+  .rec-name{font-family:'Secular One';font-size:1.25rem;color:var(--ink);margin-top:5px}
+  .rec-note{color:var(--ink-soft);font-size:.95rem;margin-top:6px;font-style:italic}
+  .rec-btn{
+    display:inline-block;margin-top:13px;background:var(--rose);color:#fff;text-decoration:none;
+    font-family:'Secular One';font-size:1rem;padding:11px 22px;border-radius:13px;
+    box-shadow:0 6px 16px rgba(232,93,124,.32);
+  }
+  .rec-soon{margin-top:12px;color:var(--ink-soft);font-weight:600;font-size:.9rem;opacity:.85}
+
+  .ptype{margin-top:14px}
+  .ptype label{display:block;font-weight:700;font-size:.92rem;color:var(--ink);margin-bottom:6px}
+  .ptype label .opt{font-weight:400;color:var(--ink-soft);font-size:.85rem}
+  .ptype input{
+    width:100%;border:2px solid var(--peach);border-radius:13px;
+    padding:11px 14px;font-family:'Assistant';font-size:.97rem;color:var(--ink);
+    background:var(--peach-soft);
+  }
+  .ptype input:focus{outline:none;border-color:var(--coral);background:#fff}
+  .ptype input::placeholder{color:#C9A893}
+
+  .again{
+    display:block;width:100%;margin-top:22px;border:2px solid var(--coral);cursor:pointer;
+    background:#fff;color:var(--rose);font-family:'Secular One';font-size:1.05rem;
+    padding:13px;border-radius:16px;transition:.15s;
+  }
+  .again:hover{background:var(--peach-soft)}
+  footer{text-align:center;color:var(--ink-soft);font-size:.8rem;margin-top:34px;opacity:.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">🐆 ריקי יודעת</div>
+    <h1>ריקי תפרקי לי<br>את רשימת ה<span class="spot">רכיבים</span></h1>
+    <p class="sub">מצלמים רשימת מרכיבים מאחורי המוצר, וריקי אומרת בדיוק מה יש שם, מה טוב, ולמי זה מתאים.</p>
+  </header>
+
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="photo">📸 צילום או תמונה</button>
+      <button class="tab" data-tab="text">⌨️ הדבקת רשימה</button>
+    </div>
+
+    <div id="tab-photo">
+      <label class="drop" for="file" id="dropLabel">
+        <div class="emoji">📷</div>
+        <p>לחצי לצילום או להעלאת תמונה</p>
+        <small>בטלפון ייפתח בורר עם "צלם תמונה" / "גלריה"</small>
+      </label>
+      <input type="file" id="file" accept="image/*" class="hidden">
+      <div id="previewWrap" class="preview-wrap hidden">
+        <img id="preview" alt="תצוגה מקדימה">
+        <label for="file" class="change-photo">🔄 להחליף תמונה</label>
+      </div>
+    </div>
+
+    <div id="tab-text" class="hidden">
+      <textarea id="text" placeholder="הדביקי כאן את רשימת המרכיבים (INCI), למשל:&#10;Aqua, Niacinamide, Glycerin, Zinc PCA..."></textarea>
+      <button id="example" style="margin-top:10px;background:var(--peach-soft);border:1.5px solid var(--coral);color:var(--rose);font-family:'Assistant';font-weight:700;padding:9px 14px;border-radius:11px;cursor:pointer;font-size:.9rem">✨ נסי דוגמה</button>
+    </div>
+
+    <div class="ptype">
+      <label for="productType">סוג המוצר <span class="opt">(לא חובה)</span></label>
+      <input type="text" id="productType" placeholder="למשל: קרם ידיים, שמפו, סרום פנים, קרם עיניים...">
+    </div>
+
+    <button class="go" id="go">תפרקי לי את זה, ריקי 🐆</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="loading" id="loading">
+    <span class="paw">🐆</span>
+    <p id="loadingText">רגע, ריקי קוראת...</p>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <footer>ריקי יודעת · כלי הדגמה · המידע כללי ואינו ייעוץ רפואי</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let imageData = null; // {media_type, data}
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const tab=t.dataset.tab;
+    $('#tab-photo').classList.toggle('hidden', tab!=='photo');
+    $('#tab-text').classList.toggle('hidden', tab!=='text');
+  };
+});
+
+// file upload (label opens the picker natively) - resizes large photos for speed
+$('#file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const maxDim=1200;
+      let w=img.width, h=img.height;
+      if(w>maxDim || h>maxDim){
+        if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; }
+        else { w=Math.round(w*maxDim/h); h=maxDim; }
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.85);
+      imageData={media_type:'image/jpeg', data:dataUrl.split(',')[1]};
+      $('#preview').src=dataUrl;
+      $('#dropLabel').classList.add('hidden');
+      $('#previewWrap').classList.remove('hidden');
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(f);
+};
+
+// example fill - רשימת קרם ההגנה P.CALM שריקי בדקה
+$('#example').onclick=()=>{
+  $('#text').value="Water, Propanediol, Butyloctyl Salicylate, Dibutyl Adipate, Ethylhexyl Triazone, Terephthalylidene Dicamphor Sulfonic Acid, Niacinamide, Tromethamine, Polyglyceryl-3 Distearate, Octyldodecanol, Cetearyl Alcohol, 1,2-Hexanediol, Pentylene Glycol, Diethylamino Hydroxybenzoyl Hexyl Benzoate, Caprylyl Methicone, Polysilicone-15, Aloe Ferox Leaf Extract, Polymethylsilsesquioxane, Glyceryl Stearate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine, Potassium Cetyl Phosphate, Methylpropanediol, Poly C10-30 Alkyl Acrylate, Carbomer, Glyceryl Stearate Citrate, Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Ethylhexylglycerin, Ammonium Acryloyldimethyltaurate/VP Copolymer, Adenosine, Polyether-1, Sodium Guaiazulene Sulfonate, Biosaccharide Gum-1, Glutathione, Lactobacillus Ferment, Madecassoside, Ceramide NP, Allantoin, Tocopherol, Butylene Glycol";
+};
+
+$('#go').onclick = async ()=>{
+  $('#err').style.display='none';
+  const activeTab=document.querySelector('.tab.active').dataset.tab;
+  const text=$('#text').value.trim();
+  const ptype=$('#productType').value.trim();
+  const ptypeLine = ptype ? `\n\nהמשתמשת ציינה שזהו: ${ptype}. התחשבי בזה בניתוח (ציפיות סבילות עור, ובקטגוריה - אם זה לא אחת מחמש הקטגוריות, סווגי "other").` : '';
+
+  let content;
+  if(activeTab==='photo'){
+    if(!imageData){ showErr('צלמי או העלי תמונה של רשימת המרכיבים קודם 🐆'); return; }
+    content=[
+      {type:'image', source:{type:'base64', media_type:imageData.media_type, data:imageData.data}},
+      {type:'text', text:'קראי את רשימת המרכיבים מהתמונה ונתחי לפי ההוראות.'+ptypeLine}
+    ];
+  } else {
+    if(!text){ showErr('הדביקי רשימת מרכיבים קודם 🐆'); return; }
+    content=[{type:'text', text:'נתחי את הרשימה הבאה:\n\n'+text+ptypeLine}];
+  }
+
+  $('#go').disabled=true;
+  $('#results').style.display='none';
+  $('#loading').classList.add('show');
+  startLoadingRotation();
+
+  try{
+    let res;
+    try{
+      res = await fetch("/api/analyze",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ content })
+      });
+    }catch(networkErr){
+      showErr('דיבאג 🐆 שגיאת רשת בקריאה לפונקציה: ' + networkErr.message);
+      return;
+    }
+
+    const raw0 = await res.text();
+    let data;
+    try{
+      data = JSON.parse(raw0);
+    }catch(parseErr){
+      showErr('דיבאג 🐆 HTTP ' + res.status + ' · תגובה לא-JSON: ' + raw0.slice(0,200));
+      return;
+    }
+
+    if(!data.content){
+      console.error('API response:', data);
+      const detail = data.error ? (data.error.message || JSON.stringify(data.error)) : JSON.stringify(data).slice(0,200);
+      showErr('דיבאג 🐆 HTTP ' + res.status + ' · ' + detail);
+      return;
+    }
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    let clean=raw.replace(/```json/g,'').replace(/```/g,'').trim();
+    // robust: grab the JSON object between the first { and last }
+    const first=clean.indexOf('{'), last=clean.lastIndexOf('}');
+    if(first>=0 && last>first) clean=clean.slice(first, last+1);
+    const parsed=JSON.parse(clean);
+    render(parsed);
+  }catch(e){
+    showErr('דיבאג 🐆 שגיאה כללית: ' + (e && e.message ? e.message : String(e)));
+    console.error(e);
+  }finally{
+    $('#go').disabled=false;
+    $('#loading').classList.remove('show');
+    stopLoadingRotation();
+  }
+};
+
+function showErr(m){ const e=$('#err'); e.textContent=m; e.style.display='block'; }
+
+// rotating loading captions in Riki's voice
+const LOADING_LINES=[
+  "35 שניות ויש לך את התשובה ⏱️",
+  "ריקי הולכת להביא משקפיים 👓",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "עוד כמה שניות, לא להעלם 🐆",
+  "ריקי תגיד לך אם זו מציאה או נפילה",
+  "עוד 20 שניות ⏱️",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "עוד כמה שניות, לא להעלם 🐆",
+  "ריקי תגיד לך אם זו מציאה או נפילה",
+  "עוד 10 שניות ⏱️",
+  "וואו וואו איזו רשימה 🐆",
+  "תצעיר אותך בלפחות שנה ✨",
+  "רגע ריקי בודקת...",
+  "את מוכנה? 🐆"
+];
+let loadTimer=null, loadIdx=0;
+function startLoadingRotation(){
+  loadIdx=0;
+  $('#loadingText').textContent=LOADING_LINES[0];
+  loadTimer=setInterval(()=>{
+    if(loadIdx < LOADING_LINES.length - 1) loadIdx++;
+    $('#loadingText').textContent=LOADING_LINES[loadIdx];
+  },1900);
+}
+function stopLoadingRotation(){ if(loadTimer){clearInterval(loadTimer);loadTimer=null;} }
+
+// ===== הבחירות של ריקי - לעריכה: שם, מותג, לינק, ומשפט אישי =====
+const RIKI_PICKS={
+  moisturizer:    {name:'Vanicream Moisturizing Cream', brand:'Vanicream', link:'https://iherb.prf.hn/l/p3Mnj1v/', note:'לחות חזקה בלי בישומים ובלי דרמה - מושלם לעור רגיש.'},
+  face_cleanser:  {name:'Vanicream Gentle Facial Cleanser', brand:'Vanicream', link:'https://iherb.prf.hn/l/1A9VAlX/', note:'מנקה עדין שלא מייבש ולא מגרד את מחסום העור.'},
+  vitamin_c_serum:{name:'Timeless Vitamin C Serum', brand:'Timeless', link:'https://iherb.prf.hn/l/G92YJm9/', note:'ויטמין C נקי ויעיל במחיר שפוי - קלאסיקה משום מה.'},
+  hair_mask:      {name:'Advanced Clinicals Keratin Mask', brand:'Advanced Clinicals', link:'https://iherb.prf.hn/l/AJDMp0Y/', note:'קרטין שמחזיר חיים לשיער יבש ופגום.'},
+  sunscreen:      {name:'Beauty of Joseon Relief Sun', brand:'Beauty of Joseon', link:'https://global.oliveyoung.com/if/rd?su=CQAZQFPZ', note:'SPF קוריאני שנספג כמו חלום, בלי שכבה לבנה.'}
+};
+
+const verdictLabel={great:'מעולה!',good:'טוב',mixed:'תלוי',careful:'בזהירות'};
+const ratingTag={star:'⭐',good:'✅',neutral:'➖',watch:'⚠️'};
+const fitLabel={good:'מתאים',ok:'בסדר',avoid:'פחות'};
+
+function render(d){
+  const r=$('#results');
+  if(d.found===false){
+    r.innerHTML='<div class="verdict v-mixed"><div class="v-label">הממ</div><h2>ריקי לא הצליחה לזהות רשימת מרכיבים. נסי תמונה ברורה יותר או הדביקי את הרשימה כטקסט.</h2></div>'
+      + '<button class="again" id="again">ריקי, תסרקי לי עוד 🐆</button>';
+    r.style.display='block'; r.scrollIntoView({behavior:'smooth'});
+    $('#again').onclick=resetTool;
+    return;
+  }
+
+  let html='';
+  html+=`<div class="verdict v-${d.verdict}">
+    <div class="v-label">השורה התחתונה של ריקי</div>
+    <h2>${verdictLabel[d.verdict]||''} · ${esc(d.verdict_text)}</h2>
+  </div>`;
+
+  if(d.skin_types?.length){
+    html+='<div class="section-title">🧴 למי זה מתאים</div><div class="chips">';
+    d.skin_types.forEach(s=>{
+      html+=`<div class="chip"><span class="dot ${s.fit}"></span><span>${esc(s.type)} <small>· ${fitLabel[s.fit]||''}${s.note?' · '+esc(s.note):''}</small></span></div>`;
+    });
+    html+='</div>';
+  }
+
+  if(d.ingredients?.length){
+    html+='<div class="section-title">🔍 הרכיבים החשובים</div>';
+    d.ingredients.forEach(i=>{
+      html+=`<div class="ing r-${i.rating}">
+        <div class="ing-head">
+          <div class="ing-name">${esc(i.name)} ${i.hebrew?`<span class="he">· ${esc(i.hebrew)}</span>`:''}</div>
+          <div class="ing-tag">${ratingTag[i.rating]||''}</div>
+        </div>
+        ${i.what?`<div class="ing-what">${esc(i.what)}</div>`:''}
+        <div class="ing-meta">
+          ${i.good_for?`<span class="good-line"><span class="k">טוב ל:</span> ${esc(i.good_for)}</span>`:''}
+          ${i.caution?`<span class="warn-line"><span class="k">שימי לב:</span> ${esc(i.caution)}</span>`:''}
+        </div>
+      </div>`;
+    });
+  }
+
+  if(d.riki_tip){
+    html+=`<div class="tip"><b>הטיפ של ריקי 🐆</b><br>${esc(d.riki_tip)}</div>`;
+  }
+
+  const pick=RIKI_PICKS[d.category];
+  if(pick){
+    html+=`<div class="rec">
+      <div class="rec-label">🐆 הבחירה של ריקי בקטגוריה</div>
+      <div class="rec-name">${esc(pick.name)}</div>
+      ${pick.note?`<div class="rec-note">"${esc(pick.note)}"</div>`:''}
+      ${pick.link
+        ? `<a class="rec-btn" href="${esc(pick.link)}" target="_blank" rel="noopener">לצפייה במוצר ←</a>`
+        : `<div class="rec-soon">לינק יתווסף בקרוב</div>`}
+    </div>`;
+  }
+
+  html+='<button class="again" id="again">ריקי, תסרקי לי עוד 🐆</button>';
+
+  r.innerHTML=html;
+  r.style.display='block';
+  r.scrollIntoView({behavior:'smooth'});
+  $('#again').onclick=resetTool;
+}
+
+function resetTool(){
+  // clear text + product type
+  $('#text').value='';
+  $('#productType').value='';
+  // clear photo
+  imageData=null;
+  $('#preview').removeAttribute('src');
+  $('#previewWrap').classList.add('hidden');
+  $('#dropLabel').classList.remove('hidden');
+  $('#file').value='';
+  // hide results/errors
+  $('#results').style.display='none';
+  $('#results').innerHTML='';
+  $('#err').style.display='none';
+  // back to top of the tool
+  document.querySelector('.panel').scrollIntoView({behavior:'smooth'});
+}
+
+function esc(s){return (s||'').toString().replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+</script>
+</body>
+</html>
