@@ -343,13 +343,18 @@ document.querySelectorAll('.tab').forEach(t=>{
 // file upload (label opens the picker natively) - resizes large photos for speed, with fallback
 $('#file').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
+  const SUPPORTED=['image/jpeg','image/png','image/gif','image/webp'];
 
-  // fallback: send the original file as-is (used if resizing fails, e.g. HEIC)
+  // fallback: send original file as-is, but only if its type is supported by the API
   function useOriginal(){
+    if(!SUPPORTED.includes(f.type)){
+      showErr('הפורמט של התמונה לא נתמך. נסי לצלם ישירות, או לבחור תמונה בפורמט JPG/PNG 🐆');
+      return;
+    }
     const fr=new FileReader();
     fr.onload=()=>{
       const dataUrl=fr.result;
-      imageData={media_type:(f.type||'image/jpeg'), data:dataUrl.split(',')[1]};
+      imageData={media_type:f.type, data:dataUrl.split(',')[1]};
       $('#preview').src=dataUrl;
       $('#dropLabel').classList.add('hidden');
       $('#previewWrap').classList.remove('hidden');
@@ -373,6 +378,7 @@ $('#file').onchange=e=>{
         const canvas=document.createElement('canvas');
         canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
+        // canvas always outputs JPEG - so even HEIC input becomes a valid image/jpeg here
         const dataUrl=canvas.toDataURL('image/jpeg',0.85);
         imageData={media_type:'image/jpeg', data:dataUrl.split(',')[1]};
         $('#preview').src=dataUrl;
@@ -382,7 +388,7 @@ $('#file').onchange=e=>{
         useOriginal();
       }
     };
-    img.onerror=()=>{ useOriginal(); };  // format the browser can't draw (e.g. HEIC)
+    img.onerror=()=>{ useOriginal(); };  // browser couldn't decode (e.g. HEIC on some devices)
     img.src=reader.result;
   };
   reader.onerror=()=>{ useOriginal(); };
