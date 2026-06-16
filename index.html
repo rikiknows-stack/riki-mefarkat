@@ -100,6 +100,17 @@
     color:var(--rose);font-family:'Assistant';font-weight:700;padding:8px 14px;border-radius:11px;
     cursor:pointer;font-size:.88rem;
   }
+  .photo-choice{display:flex;gap:10px}
+  .choice-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;
+    background:linear-gradient(135deg,var(--coral),var(--rose));color:#fff;
+    font-family:'Secular One';font-size:1.05rem;padding:18px 10px;border-radius:16px;
+    box-shadow:0 6px 16px rgba(232,93,124,.28);transition:.15s;
+  }
+  .choice-btn:active{transform:translateY(1px)}
+  .choice-btn-alt{
+    background:var(--peach-soft);color:var(--rose);border:2px solid var(--coral);box-shadow:none;
+  }
 
   textarea{
     width:100%;min-height:140px;border:2px solid var(--peach);border-radius:14px;
@@ -251,12 +262,12 @@
     </div>
 
     <div id="tab-photo">
-      <label class="drop" for="file" id="dropLabel">
-        <div class="emoji">📷</div>
-        <p>לחצי לצילום או להעלאת תמונה</p>
-        <small>בטלפון ייפתח בורר עם "צלם תמונה" / "גלריה"</small>
-      </label>
-      <input type="file" id="file" accept="image/*" class="hidden">
+      <div id="photoChoice" class="photo-choice">
+        <label for="cameraInput" class="choice-btn">📷 צלמי עכשיו</label>
+        <label for="file" class="choice-btn choice-btn-alt">🖼️ מהגלריה</label>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+        <input type="file" id="file" accept="image/*" class="hidden">
+      </div>
       <div id="previewWrap" class="preview-wrap hidden">
         <img id="preview" alt="תצוגה מקדימה">
         <label for="file" class="change-photo">🔄 להחליף תמונה</label>
@@ -313,7 +324,7 @@ if('serviceWorker' in navigator){
     if(b) b.style.display = 'block';
   });
 
-  document.addEventListener('DOMContentLoaded', ()=>{
+  function setup(){
     const btn = document.getElementById('installBtn');
     const tip = document.getElementById('iosTip');
     if(isIOS && tip){ tip.style.display = 'block'; }  // iOS: show instructions
@@ -327,7 +338,10 @@ if('serviceWorker' in navigator){
         }
       };
     }
-  });
+  }
+  // run now if DOM is ready, otherwise wait
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', setup); }
+  else { setup(); }
 })();
 
 // tabs
@@ -341,14 +355,14 @@ document.querySelectorAll('.tab').forEach(t=>{
   };
 });
 
-// file upload (label opens the picker natively) - converts any photo to JPEG for the API
-$('#file').onchange=async e=>{
-  const f=e.target.files[0]; if(!f) return;
+// shared photo handler - used by both camera and gallery inputs
+async function handlePhotoFile(f){
+  if(!f) return;
 
   function showPreview(dataUrl, mediaType){
     imageData={media_type:mediaType, data:dataUrl.split(',')[1]};
     $('#preview').src=dataUrl;
-    $('#dropLabel').classList.add('hidden');
+    $('#photoChoice').classList.add('hidden');
     $('#previewWrap').classList.remove('hidden');
   }
 
@@ -392,27 +406,24 @@ $('#file').onchange=async e=>{
   const name=(f.name||'').toLowerCase();
   const isHeic = /image\/heic|image\/heif/.test(f.type) || /\.heic$|\.heif$/.test(name);
 
-  if(isHeic){
-    if(typeof heic2any!=='undefined' && !window.__heicFailed){
-      try{
-        $('#dropLabel').querySelector('p').textContent='ממיר את התמונה...';
-        const converted=await heic2any({ blob:f, toType:'image/jpeg', quality:0.85 });
-        const blob=Array.isArray(converted)?converted[0]:converted;
-        processBlob(blob);
-        return;
-      }catch(err){
-        processBlob(f); // conversion failed - try normal path anyway
-        return;
-      }
-    } else {
-      // library not available - try normal path; if it fails the user gets a friendly message
+  if(isHeic && typeof heic2any!=='undefined' && !window.__heicFailed){
+    try{
+      const converted=await heic2any({ blob:f, toType:'image/jpeg', quality:0.85 });
+      const blob=Array.isArray(converted)?converted[0]:converted;
+      processBlob(blob);
+      return;
+    }catch(err){
       processBlob(f);
       return;
     }
   }
 
   processBlob(f);
-};
+}
+
+// bind both inputs (camera + gallery) to the same handler
+$('#file').onchange = e => handlePhotoFile(e.target.files[0]);
+$('#cameraInput').onchange = e => handlePhotoFile(e.target.files[0]);
 
 // example fill - רשימת קרם ההגנה P.CALM שריקי בדקה
 $('#example').onclick=()=>{
@@ -608,8 +619,9 @@ function resetTool(){
   imageData=null;
   $('#preview').removeAttribute('src');
   $('#previewWrap').classList.add('hidden');
-  $('#dropLabel').classList.remove('hidden');
+  $('#photoChoice').classList.remove('hidden');
   $('#file').value='';
+  $('#cameraInput').value='';
   // hide results/errors
   $('#results').style.display='none';
   $('#results').innerHTML='';
