@@ -290,6 +290,13 @@
 const $ = s => document.querySelector(s);
 let imageData = null; // {media_type, data}
 
+// ===== register service worker (makes PWA valid, removes install warning) =====
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
 // ===== PWA install button =====
 (function(){
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -333,30 +340,52 @@ document.querySelectorAll('.tab').forEach(t=>{
   };
 });
 
-// file upload (label opens the picker natively) - resizes large photos for speed
+// file upload (label opens the picker natively) - resizes large photos for speed, with fallback
 $('#file').onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    const img=new Image();
-    img.onload=()=>{
-      const maxDim=1200;
-      let w=img.width, h=img.height;
-      if(w>maxDim || h>maxDim){
-        if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; }
-        else { w=Math.round(w*maxDim/h); h=maxDim; }
-      }
-      const canvas=document.createElement('canvas');
-      canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      const dataUrl=canvas.toDataURL('image/jpeg',0.85);
-      imageData={media_type:'image/jpeg', data:dataUrl.split(',')[1]};
+
+  // fallback: send the original file as-is (used if resizing fails, e.g. HEIC)
+  function useOriginal(){
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const dataUrl=fr.result;
+      imageData={media_type:(f.type||'image/jpeg'), data:dataUrl.split(',')[1]};
       $('#preview').src=dataUrl;
       $('#dropLabel').classList.add('hidden');
       $('#previewWrap').classList.remove('hidden');
     };
+    fr.onerror=()=>{ showErr('לא הצלחתי לטעון את התמונה. נסי תמונה אחרת או צלמי ישירות 🐆'); };
+    fr.readAsDataURL(f);
+  }
+
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const maxDim=1200;
+        let w=img.width, h=img.height;
+        if(!w || !h){ useOriginal(); return; }
+        if(w>maxDim || h>maxDim){
+          if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; }
+          else { w=Math.round(w*maxDim/h); h=maxDim; }
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const dataUrl=canvas.toDataURL('image/jpeg',0.85);
+        imageData={media_type:'image/jpeg', data:dataUrl.split(',')[1]};
+        $('#preview').src=dataUrl;
+        $('#dropLabel').classList.add('hidden');
+        $('#previewWrap').classList.remove('hidden');
+      }catch(err){
+        useOriginal();
+      }
+    };
+    img.onerror=()=>{ useOriginal(); };  // format the browser can't draw (e.g. HEIC)
     img.src=reader.result;
   };
+  reader.onerror=()=>{ useOriginal(); };
   reader.readAsDataURL(f);
 };
 
