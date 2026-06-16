@@ -455,27 +455,15 @@ $('#go').onclick = async ()=>{
   startLoadingRotation();
 
   try{
-    // fetch with automatic retry on network failure (handles flaky mobile connections)
-    async function fetchWithRetry(attempts){
-      for(let i=0;i<attempts;i++){
-        try{
-          return await fetch("/api/analyze",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({ content })
-          });
-        }catch(networkErr){
-          if(i===attempts-1) throw networkErr;  // last attempt - give up
-          await new Promise(r=>setTimeout(r, 1500));  // wait then retry
-        }
-      }
-    }
-
     let res;
     try{
-      res = await fetchWithRetry(3);  // try up to 3 times
+      res = await fetch("/api/analyze",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ content })
+      });
     }catch(networkErr){
-      showErr('נראה שיש בעיה זמנית בחיבור לאינטרנט. בדקי שיש רשת ונסי שוב 🐆');
+      showErr('נראה שיש בעיה זמנית בחיבור. בדקי שיש רשת תקינה ונסי שוב 🐆');
       return;
     }
 
