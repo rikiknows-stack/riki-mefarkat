@@ -198,6 +198,12 @@
     background:#FCE8E8;border:1.5px solid var(--careful);color:#9A3B3B;
     border-radius:14px;padding:14px;margin-top:16px;display:none;font-weight:600;
   }
+  .err-report{
+    display:inline-block;margin-top:10px;font-size:.82rem;font-weight:600;
+    color:#9A3B3B;border:1.5px solid #9A3B3B;border-radius:20px;
+    padding:6px 14px;text-decoration:none;opacity:.8;
+  }
+  .err-report:hover{opacity:1;}
   .rec{
     margin-top:18px;border-radius:18px;padding:18px 18px 20px;
     background:linear-gradient(135deg,#FFE9DD,#FBD9C7);
@@ -285,7 +291,10 @@
     </div>
 
     <button class="go" id="go">תפרקי לי את זה, ריקי 🐆</button>
-    <div class="err" id="err"></div>
+    <div class="err" id="err">
+      <span id="errMsg"></span>
+      <br><a class="err-report" id="errReport" href="#" style="display:none">📩 דווחי על תקלה</a>
+    </div>
   </div>
 
   <div class="loading" id="loading">
@@ -463,7 +472,7 @@ $('#go').onclick = async ()=>{
         body:JSON.stringify({ content })
       });
     }catch(networkErr){
-      showErr('נראה שיש בעיה זמנית בחיבור. בדקי שיש רשת תקינה ונסי שוב 🐆');
+      showErr('נראה שיש בעיה זמנית בחיבור. בדקי שיש רשת תקינה ונסי שוב 🐆', true);
       return;
     }
 
@@ -472,13 +481,13 @@ $('#go').onclick = async ()=>{
     try{
       data = JSON.parse(raw0);
     }catch(parseErr){
-      showErr('אופס, ריקי קצת התעכבה. נסי שוב בעוד רגע 🐆');
+      showErr('אופס, ריקי קצת התעכבה. נסי שוב בעוד רגע 🐆', true);
       return;
     }
 
     if(!data.content){
       console.error('API response:', data);
-      showErr('אופס, ריקי קצת התבלבלה. נסי שוב בעוד רגע 🐆');
+      showErr('אופס, ריקי קצת התבלבלה. נסי שוב בעוד רגע 🐆', true);
       return;
     }
     const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
@@ -489,7 +498,7 @@ $('#go').onclick = async ()=>{
     const parsed=JSON.parse(clean);
     render(parsed);
   }catch(e){
-    showErr('אופס, משהו השתבש. נסי שוב 🐆');
+    showErr('אופס, משהו השתבש. נסי שוב 🐆', true);
     console.error(e);
   }finally{
     $('#go').disabled=false;
@@ -498,7 +507,19 @@ $('#go').onclick = async ()=>{
   }
 };
 
-function showErr(m){ const e=$('#err'); e.textContent=m; e.style.display='block'; }
+function showErr(m, showReport=false){
+  const e=$('#err');
+  $('#errMsg').textContent=m;
+  e.style.display='block';
+  const btn=$('#errReport');
+  if(showReport){
+    const text=encodeURIComponent('היי ריקי, נתקלתי בתקלה בסורק המרכיבים:\n' + m);
+    btn.onclick=()=>{ window.open('https://wa.me/972505515733?text='+text,'_blank'); };
+    btn.style.display='inline-block';
+  } else {
+    btn.style.display='none';
+  }
+}
 
 // rotating loading captions in Riki's voice
 const LOADING_LINES=[
