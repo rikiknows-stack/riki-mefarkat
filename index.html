@@ -555,11 +555,46 @@ function stopLoadingRotation(){ if(loadTimer){clearInterval(loadTimer);loadTimer
 
 // ===== הבחירות של ריקי - לעריכה: שם, מותג, לינק, ומשפט אישי =====
 const RIKI_PICKS={
-  moisturizer:    {name:'Vanicream Moisturizing Cream', brand:'Vanicream', link:'https://iherb.prf.hn/l/p3Mnj1v/', note:'לחות חזקה בלי בישומים ובלי דרמה - מושלם לעור רגיש.'},
-  face_cleanser:  {name:'Vanicream Gentle Facial Cleanser', brand:'Vanicream', link:'https://iherb.prf.hn/l/1A9VAlX/', note:'מנקה עדין שלא מייבש ולא מגרד את מחסום העור.'},
-  vitamin_c_serum:{name:'Timeless Vitamin C Serum', brand:'Timeless', link:'https://iherb.prf.hn/l/G92YJm9/', note:'ויטמין C נקי ויעיל במחיר שפוי - קלאסיקה משום מה.'},
-  hair_mask:      {name:'Advanced Clinicals Keratin Mask', brand:'Advanced Clinicals', link:'https://iherb.prf.hn/l/AJDMp0Y/', note:'קרטין שמחזיר חיים לשיער יבש ופגום.'},
-  sunscreen:      {name:'Beauty of Joseon Relief Sun', brand:'Beauty of Joseon', link:'https://global.oliveyoung.com/if/rd?su=CQAZQFPZ', note:'SPF קוריאני שנספג כמו חלום, בלי שכבה לבנה.'}
+  moisturizer:[
+    {name:'Vanicream Moisturizing Cream',brand:'Vanicream',link:'https://iherb.prf.hn/l/p3Mnj1v/',note:'לחות חזקה בלי בישומים ובלי דרמה - מושלם לעור רגיש.'},
+    {name:'Aqua Squalane Cream',brand:'',link:'https://iherb.prf.hn/l/D9JZqNY/',note:'קרם קליל על בסיס סקוואלן - לחות שנספגת מהר ולא משאירת תחושת כובד.'},
+    {name:'ANUA 3+ Barrier Cream',brand:'ANUA',link:'https://iherb.prf.hn/l/3PDVGzz/',note:'מחזק את מחסום העור תוך כדי לחות - שילוב חכם.'},
+    {name:'INTECA Calming Moisturizer',brand:'INTECA',link:'https://iherb.prf.hn/l/y81lJXn/',note:'לחות וגם הרגעה - מותאם במיוחד לעור רגיש.'},
+    {name:'Dr. Althea 345 Cream',brand:'Dr. Althea',link:'https://ksp.co.il/item/17437-437451',note:'קרם מקצועי שמשלב לחות עם טיפוח מתקדם.'},
+    {name:'Haruharu Wonder Probiotics Ceramides',brand:'Haruharu Wonder',link:'https://ksp.co.il/item/17437-472436',note:'פרוביוטיקה וסרמידים ביחד - מזין ומחזק מחסום העור.'},
+    {name:'ISNtree Hyaluronic Acid Aqua Gel Cream',brand:'ISNtree',link:'https://iherb.prf.hn/l/YReqgMg/',note:'ג'l קרם היאלורוני קליל - אידיאלי לעור שמן שצריך לחות.'}
+  ],
+  face_cleanser:[
+    {name:'Vanicream Gentle Facial Cleanser',brand:'Vanicream',link:'https://iherb.prf.hn/l/1A9VAlX/',note:'מנקה עדין שלא מייבש ולא מגרד את מחסום העור.'},
+    {name:'Eucerin Gentle Cleansing Gel',brand:'Eucerin',link:'https://iherb.prf.hn/l/ZZ293yY/',note:'ניקוי עדין ומאוזן מבית Eucerin - מתאים גם לעור רגיש.'}
+  ],
+  vitamin_c_serum:[
+    {name:'Timeless Vitamin C Serum',brand:'Timeless',link:'https://iherb.prf.hn/l/G92YJm9/',note:'ויטמין C נקי ויעיל במחיר שפוי - קלאסיקה משום מה.'}
+  ],
+  serum:[
+    {name:'Timeless Vitamin C Serum',brand:'Timeless',link:'https://iherb.prf.hn/l/G92YJm9/',note:'ויטמין C נקי ויעיל במחיר שפוי - קלאסיקה משום מה.'},
+    {name:'Genabelle PDRN 3% Hyper Boost Ampoule',brand:'Genabelle',link:'https://iherb.prf.hn/l/xEMlJXn/',note:'PDRN בריכוז משמעותי - סרום שיקומי לעור עייף.'}
+  ],
+  hair_mask:[
+    {name:'Advanced Clinicals Keratin Mask',brand:'Advanced Clinicals',link:'https://iherb.prf.hn/l/AJDMp0Y/',note:'קרטין שמחזיר חיים לשיער יבש ופגום.'}
+  ],
+  sunscreen:[
+    {name:'Beauty of Joseon Relief Sun',brand:'Beauty of Joseon',link:'https://global.oliveyoung.com/if/rd?su=CQAZQFPZ',note:'SPF קוריאני שנספג כמו חלום, בלי שכבה לבנה.'},
+    {name:'Haruharu Wonder SPF50+',brand:'Haruharu Wonder',link:'https://ksp.co.il/item/17437-472562',note:'הגנה גבוהה עם פורמולה קלה - עובד מצוין מתחת מייקאפ.'},
+    {name:'Beauty of Joseon Rice Probiotics SPF50+',brand:'Beauty of Joseon',link:'https://ksp.co.il/item/17437-442320',note:'SPF עם תמצית אורז ופרוביוטיקה - מגן ומטפל ביחד.'},
+    {name:'Purito Seoul Daily Soft Touch Sunscreen',brand:'Purito',link:'https://global.oliveyoung.com/if/rd?su=BTXU5Z8X',note:'מרקם רך ונעים - SPF שאת תרצי לשים כל יום.'},
+    {name:'Torriden Dive In Moisture Sunscreen',brand:'Torriden',link:'https://global.oliveyoung.com/if/rd?su=2UT7AMWF',note:'SPF לח במיוחד - מושלם לעור יבש שצריך הגנה וגם לחות.'}
+  ],
+  toner:[
+    {name:'Round Lab Dokdo Toner',brand:'Round Lab',link:'https://ksp.co.il/item/17437-436774',note:'טונר מינרלי מרגיע - מייצב ומכין את העור לשלבי הטיפוח הבאים.'},
+    {name:'Numbuzin No.9 Skin Softening Serum Toner',brand:'Numbuzin',link:'https://iherb.prf.hn/l/EQ3zLq9/',note:'בין טונר לסרום - מרקם עשיר שמפנק את העור.'}
+  ],
+  cleansing_oil:[
+    {name:'BIODANCE Collagen Cleansing Oil',brand:'BIODANCE',link:'https://global.oliveyoung.com/if/rd?su=T64VQP1U',note:'שמן ניקוי עם קולגן - מסיר מייקאפ בעדינות ומשאיר תחושת עור מטופח.'}
+  ],
+  eye_cream:[
+    {name:'Haruharu Wonder Eye Cream',brand:'Haruharu Wonder',link:'https://ksp.co.il/item/17437-472414',note:'קרם עיניים עדין שמטפח את אזור העיניים הרגיש.'}
+  ]
 };
 
 const verdictLabel={great:'מעולה!',good:'טוב',mixed:'תלוי',careful:'בזהירות'};
@@ -611,7 +646,8 @@ function render(d){
     html+=`<div class="tip"><b>הטיפ של ריקי 🐆</b><br>${esc(d.riki_tip)}</div>`;
   }
 
-  const pick=RIKI_PICKS[d.category];
+  const pickArr=RIKI_PICKS[d.category];
+  const pick=Array.isArray(pickArr)?pickArr[Math.floor(Math.random()*pickArr.length)]:pickArr;
   if(pick){
     html+=`<div class="rec">
       <div class="rec-label">🐆 הבחירה של ריקי בקטגוריה</div>
