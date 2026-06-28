@@ -101,7 +101,8 @@ export default async (req, context) => {
       const parsed = JSON.parse(data.content?.[0]?.text || '{}');
       await fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           category: parsed.category || "",
           verdict: parsed.verdict || "",
