@@ -99,7 +99,7 @@ export default async (req, context) => {
     // לוגינג לגוגל שיטס - fire and forget
     try {
       const parsed = JSON.parse(data.content?.[0]?.text || '{}');
-      fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
+      await fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
