@@ -95,6 +95,22 @@ export default async (req, context) => {
     });
 
     const data = await apiRes.json();
+
+    // לוגינג לגוגל שיטס - fire and forget
+    try {
+      const parsed = JSON.parse(data.content?.[0]?.text || '{}');
+      fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: parsed.category || "",
+          verdict: parsed.verdict || "",
+          verdict_text: parsed.verdict_text || "",
+          first_ingredient: parsed.ingredients?.[0]?.name || ""
+        })
+      });
+    } catch (_) {}
+
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { "Content-Type": "application/json" }
