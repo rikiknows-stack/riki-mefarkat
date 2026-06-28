@@ -96,7 +96,7 @@ export default async (req, context) => {
 
     const data = await apiRes.json();
 
-    // לוגינג לגוגל שיטס - עם context.waitUntil כדי לא לחסום את הסריקה
+    // לוגינג לגוגל שיטס - עם timeout כדי לא לחסום את הסריקה
     try {
       const parsed = JSON.parse(data.content?.[0]?.text || '{}');
       const params = new URLSearchParams({
@@ -105,12 +105,13 @@ export default async (req, context) => {
         verdict_text: parsed.verdict_text || "",
         first_ingredient: parsed.ingredients?.[0]?.name || ""
       });
-      context.waitUntil(
+      await Promise.race([
         fetch("https://script.google.com/macros/s/AKfycbyoEggZ6fMJSkB-oIs5xHFXILZbUxfQKzUtvxCJcAu52IHbMtEsz2b00T-SWmo_-ULA/exec?" + params.toString(), {
           method: "GET",
           redirect: "follow"
-        }).catch(() => {})
-      );
+        }),
+        new Promise(resolve => setTimeout(resolve, 2000))
+      ]).catch(() => {});
     } catch (_) {}
 
     return new Response(JSON.stringify(data), {
