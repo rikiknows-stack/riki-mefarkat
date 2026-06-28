@@ -99,17 +99,16 @@ export default async (req, context) => {
     // לוגינג לגוגל שיטס - עם context.waitUntil כדי לא לחסום את הסריקה
     try {
       const parsed = JSON.parse(data.content?.[0]?.text || '{}');
+      const params = new URLSearchParams({
+        category: parsed.category || "",
+        verdict: parsed.verdict || "",
+        verdict_text: parsed.verdict_text || "",
+        first_ingredient: parsed.ingredients?.[0]?.name || ""
+      });
       context.waitUntil(
-        fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
-          method: "POST",
-          redirect: "follow",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            category: parsed.category || "",
-            verdict: parsed.verdict || "",
-            verdict_text: parsed.verdict_text || "",
-            first_ingredient: parsed.ingredients?.[0]?.name || ""
-          })
+        fetch("https://script.google.com/macros/s/AKfycbyoEggZ6fMJSkB-oIs5xHFXILZbUxfQKzUtvxCJcAu52IHbMtEsz2b00T-SWmo_-ULA/exec?" + params.toString(), {
+          method: "GET",
+          redirect: "follow"
         }).catch(() => {})
       );
     } catch (_) {}
