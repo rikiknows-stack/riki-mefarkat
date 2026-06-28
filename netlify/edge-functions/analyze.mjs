@@ -96,20 +96,22 @@ export default async (req, context) => {
 
     const data = await apiRes.json();
 
-    // לוגינג לגוגל שיטס - fire and forget
+    // לוגינג לגוגל שיטס - עם context.waitUntil כדי לא לחסום את הסריקה
     try {
       const parsed = JSON.parse(data.content?.[0]?.text || '{}');
-      await fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
-        method: "POST",
-        redirect: "follow",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          category: parsed.category || "",
-          verdict: parsed.verdict || "",
-          verdict_text: parsed.verdict_text || "",
-          first_ingredient: parsed.ingredients?.[0]?.name || ""
-        })
-      });
+      context.waitUntil(
+        fetch("https://script.google.com/macros/s/AKfycbxThbXHHx7jvOHoAwOvP4KwGZwpfkZVzZQjRZ4P20OvMtR-Zh4rz6XYhIiDHynWAGGa/exec", {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            category: parsed.category || "",
+            verdict: parsed.verdict || "",
+            verdict_text: parsed.verdict_text || "",
+            first_ingredient: parsed.ingredients?.[0]?.name || ""
+          })
+        }).catch(() => {})
+      );
     } catch (_) {}
 
     return new Response(JSON.stringify(data), {
