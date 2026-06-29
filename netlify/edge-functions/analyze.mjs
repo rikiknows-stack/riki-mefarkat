@@ -65,9 +65,32 @@ const SYSTEM = `את ריקי מהמותג "ריקי יודעת" - מומחית 
 
 העיקרון המנחה: המטרה היא לאתר סיכונים אמיתיים ולתת תמונה מדויקת והוליסטית של הפורמולה - לא להלחיץ על כל מילה, ולא לתת לרכיבי "בונוס" זעירים להציג תמונה לא מדויקת של הפורמולה.`;
 
+// Rate limiting - 10 בקשות לשעה לפי IP
+const rateLimitMap = new Map();
+const RATE_LIMIT = 10;
+const RATE_WINDOW = 60 * 60 * 1000; // שעה במילישניות
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip) || { count: 0, resetAt: now + RATE_WINDOW };
+  if (now > entry.resetAt) {
+    entry.count = 0;
+    entry.resetAt = now + RATE_WINDOW;
+  }
+  entry.count++;
+  rateLimitMap.set(ip, entry);
+  return entry.count <= RATE_LIMIT;
+}
+
 export default async (req, context) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
+  }
+
+  // Rate limit לפי IP
+  const ip = context.ip || req.headers.get("x-forwarded-for") || "unknown";
+  if (!checkRateLimit(ip)) {
+    return new Response(JSON.stringify({ error: "יותר מדי סריקות. אפשר עד 10 סריקות בשעה, תנסי שוב בעוד קצת 🐆" }), { status: 429 });
   }
 
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
@@ -79,6 +102,12 @@ export default async (req, context) => {
     const { content } = await req.json();
     if (!content) {
       return new Response(JSON.stringify({ error: "Missing content" }), { status: 400 });
+    }
+
+    // מגבלת גודל קלט - עד 8000 תווים
+    const contentStr = typeof content === "string" ? content : JSON.stringify(content);
+    if (contentStr.length > 8000) {
+      return new Response(JSON.stringify({ error: "הרשימה ארוכה מדי. ריקי מתחילה להסתחרר 🐆 תנסי לקצר קצת" }), { status: 400 });
     }
 
     const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -95,6 +124,12 @@ export default async (req, context) => {
         messages: [{ role: "user", content }]
       })
     });
+
+    if (!apiRes.ok) {
+      const errBody = await apiRes.text();
+      console.error("Anthropic API error:", apiRes.status, errBody);
+      return new Response(JSON.stringify({ error: "ריקי נתקעה עם השרת, תנסי שוב עוד רגע 🐆" }), { status: 502 });
+    }
 
     const data = await apiRes.json();
 
