@@ -104,9 +104,11 @@ export default async (req, context) => {
       return new Response(JSON.stringify({ error: "Missing content" }), { status: 400 });
     }
 
-    // מגבלת גודל קלט - עד 8000 תווים
-    const contentStr = typeof content === "string" ? content : JSON.stringify(content);
-    if (contentStr.length > 8000) {
+    // מגבלת גודל - רק לטקסט (תמונות base64 גדולות יותר בטבען)
+    const textParts = Array.isArray(content)
+      ? content.filter(p => p.type === "text").map(p => p.text || "").join("")
+      : (typeof content === "string" ? content : "");
+    if (textParts.length > 10000) {
       return new Response(JSON.stringify({ error: "הרשימה ארוכה מדי. ריקי מתחילה להסתחרר 🐆 תנסי לקצר קצת" }), { status: 400 });
     }
 
